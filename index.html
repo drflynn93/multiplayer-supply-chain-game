@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Chain Challenge — Sports Marketing Edition</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
+#crawl-screen { display: block; background: #000; width: 100%; min-height: 100vh; position: relative; overflow: hidden; }
+#starfield { position: absolute; inset: 0; width: 100%; height: 100%; }
+#crawl-container { position: absolute; left: 50%; transform: translateX(-50%); width: min(640px, 88%); bottom: 0; animation: scrollup 85s linear 1.5s forwards; }
+@keyframes scrollup { from { transform: translateX(-50%) translateY(100vh); } to { transform: translateX(-50%) translateY(-230%); } }
+.crawl-ep { font-family: Georgia,serif; color: #4fc3f7; font-size: 13px; letter-spacing: 8px; text-transform: uppercase; text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
+.crawl-logo { font-family: Georgia,serif; color: #FFE81F; font-size: 44px; font-weight: 900; text-align: center; line-height: 1.15; letter-spacing: 2px; margin-bottom: 0.4rem; }
+.crawl-logo-sub { font-family: Georgia,serif; color: #FFE81F; font-size: 12px; letter-spacing: 9px; text-transform: uppercase; text-align: center; margin-bottom: 3rem; }
+.crawl-body { font-family: Georgia,serif; color: #FFE81F; font-size: 18px; line-height: 1.85; text-align: justify; margin-bottom: 1.6rem; }
+.crawl-hi { font-style: italic; font-weight: 700; }
+.crawl-end { font-family: Georgia,serif; color: #FFE81F; font-size: 20px; font-weight: 700; text-align: center; line-height: 1.8; margin-top: 2rem; padding-bottom: 5rem; }
+#skip-btn { position: absolute; bottom: 20px; right: 20px; background: rgba(255,232,31,0.1); border: 1px solid #FFE81F; color: #FFE81F; font-family: Georgia,serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; padding: 8px 18px; border-radius: 4px; cursor: pointer; z-index: 20; }
+#register-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+.reg-card { background: white; border: 1px solid #d3d1c7; border-radius: 16px; padding: 2.5rem; width: min(460px,100%); text-align: center; }
+.reg-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.4rem; }
+.reg-sub { font-size: 0.88rem; color: #5f5e5a; margin-bottom: 1.75rem; line-height: 1.5; }
+.reg-input { width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #d3d1c7; border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; outline: none; }
+.reg-input:focus { border-color: #534AB7; }
+#mode-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+.mode-title { font-size: 1.9rem; font-weight: 700; margin-bottom: 0.3rem; text-align: center; }
+.mode-sub { color: #5f5e5a; font-size: 0.9rem; margin-bottom: 0.6rem; text-align: center; max-width: 540px; }
+.mode-welcome { background: #EEEDFE; border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.85rem; color: #3C3489; max-width: 540px; margin-bottom: 0.75rem; }
+.mode-context { background: white; border: 1px solid #d3d1c7; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.78rem; color: #5f5e5a; max-width: 540px; margin-bottom: 1.4rem; line-height: 1.65; }
+.lo-pill { display: inline-block; background: #EEEDFE; color: #3C3489; font-size: 0.64rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-right: 3px; }
+.mode-cards { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem; }
+.mode-card { background: white; border: 1px solid #d3d1c7; border-radius: 14px; padding: 1.5rem; width: 220px; cursor: pointer; transition: border-color 0.15s, transform 0.1s; text-align: center; }
+.mode-card:hover { border-color: #534AB7; transform: translateY(-2px); }
+.mode-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+.mode-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+.mode-desc { font-size: 0.76rem; color: #5f5e5a; line-height: 1.5; }
+.lb-btn { background: white; border: 1px solid #d3d1c7; border-radius: 10px; padding: 0.6rem 1.4rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #534AB7; }
+.lb-btn:hover { border-color: #534AB7; }
+#lb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+.lb-modal { background: white; border-radius: 16px; padding: 1.5rem; width: min(560px,100%); max-height: 85vh; overflow-y: auto; }
+.lb-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.lb-close { cursor: pointer; color: #888780; font-size: 1.2rem; }
+.lb-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.lb-table th { text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888780; padding: 5px 7px; border-bottom: 1px solid #D3D1C7; }
+.lb-table td { padding: 7px 7px; border-bottom: 0.5px solid #D3D1C7; }
+.lb-table tr:last-child td { border-bottom: none; }
+.lb-rank { font-weight: 800; color: #534AB7; }
+.lb-you { background: #EEEDFE; }
+#game-screen, #h2h-screen { display: none; max-width: 920px; margin: 0 auto; padding: 1rem; }
+#h2h-screen { max-width: 1100px; }
+.game-header { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; background: white; border-radius: 12px; border: 1px solid #d3d1c7; margin-bottom: 0.7rem; }
+.game-title { font-size: 0.95rem; font-weight: 700; }
+.game-sub { font-size: 0.71rem; color: #888780; margin-top: 2px; }
+.round-badge { background: #EEEDFE; color: #3C3489; font-size: 0.74rem; font-weight: 700; padding: 3px 9px; border-radius: 7px; }
+.scorecard { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-bottom: 0.7rem; }
+.score-card { background: white; border: 1px solid #d3d1c7; border-radius: 10px; padding: 0.55rem 0.8rem; text-align: center; }
+.score-label { font-size: 0.64rem; color: #888780; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.score-value { font-size: 1.15rem; font-weight: 700; }
+.score-value.good { color: #0F6E56; } .score-value.warn { color: #854F0B; } .score-value.bad { color: #A32D2D; }
+.panel { background: white; border: 1px solid #d3d1c7; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 0.7rem; }
+.panel-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #888780; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 7px; }
+.lo-tag { font-size: 0.59rem; font-weight: 700; background: #EEEDFE; color: #534AB7; padding: 1px 5px; border-radius: 3px; text-transform: none; letter-spacing: 0; }
+.concept-note { font-size: 0.72rem; color: #5f5e5a; background: #f5f4f0; border-radius: 7px; padding: 0.4rem 0.7rem; margin-bottom: 0.7rem; line-height: 1.5; }
+.three-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+.choice-card { border: 1.5px solid #d3d1c7; border-radius: 10px; padding: 0.7rem; cursor: pointer; transition: border-color 0.12s; position: relative; }
+.choice-card:hover { border-color: #7F77DD; }
+.choice-card.selected { border-color: #534AB7; background: #EEEDFE; }
+.choice-card.disrupted { opacity: 0.4; cursor: not-allowed; }
+.card-name { font-weight: 700; font-size: 0.82rem; margin-bottom: 3px; }
+.card-type { font-size: 0.63rem; font-weight: 700; color: #534AB7; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.card-stats { font-size: 0.72rem; color: #5f5e5a; line-height: 1.6; }
+.risk-badge { position: absolute; top: 6px; right: 6px; font-size: 0.59rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+.risk-low { background: #EAF3DE; color: #3B6D11; } .risk-med { background: #FAEEDA; color: #854F0B; } .risk-high { background: #FCEBEB; color: #A32D2D; }
+.slider-row { display: flex; align-items: center; gap: 10px; margin: 0.4rem 0; }
+.slider-row label { font-size: 0.8rem; color: #5f5e5a; min-width: 115px; }
+.slider-row input[type=range] { flex: 1; }
+.slider-val { font-size: 0.82rem; font-weight: 700; min-width: 68px; text-align: right; }
+.cost-hint { font-size: 0.7rem; color: #888780; margin-top: 3px; }
+.event-banner { border-radius: 9px; padding: 0.5rem 0.85rem; font-size: 0.8rem; margin-bottom: 0.6rem; line-height: 1.5; }
+.ev-bad { background: #FCEBEB; border: 1px solid #F7C1C1; color: #501313; }
+.ev-warn { background: #FAEEDA; border: 1px solid #FAC775; color: #633806; }
+.ev-info { background: #E6F1FB; border: 1px solid #B5D4F4; color: #0C447C; }
+.ev-source { font-size: 0.65rem; font-style: italic; margin-top: 3px; opacity: 0.75; }
+.demand-reveal { background: #f5f4f0; border-radius: 9px; padding: 0.8rem 0.95rem; margin-bottom: 0.7rem; }
+.demand-row { display: flex; justify-content: space-between; font-size: 0.81rem; padding: 3px 0; border-bottom: 0.5px solid #D3D1C7; }
+.demand-row:last-child { border-bottom: none; }
+.demand-row.sec { font-weight: 700; font-size: 0.7rem; color: #888780; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 8px; }
+.demand-row.profit-row { font-size: 0.95rem; font-weight: 800; padding-top: 7px; border-top: 2px solid #534AB7; border-bottom: none; margin-top: 3px; }
+.lo-debrief { margin-top: 6px; font-size: 0.7rem; background: #EEEDFE; color: #3C3489; border-radius: 6px; padding: 5px 8px; line-height: 1.5; }
+.btn { display: inline-block; padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.83rem; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.12s, transform 0.1s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: #534AB7; color: white; } .btn-primary:hover { opacity: 0.88; }
+.btn-secondary { background: white; color: #534AB7; border: 1.5px solid #534AB7; }
+.btn-sm { padding: 0.3rem 0.75rem; font-size: 0.74rem; }
+.btn-row { display: flex; gap: 7px; justify-content: flex-end; margin-top: 0.8rem; }
+.results-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin: 1.1rem 0; }
+.result-big { background: white; border: 1px solid #d3d1c7; border-radius: 12px; padding: 0.9rem; text-align: center; }
+.result-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.06em; color: #888780; margin-bottom: 4px; }
+.result-num { font-size: 1.6rem; font-weight: 800; }
+.result-sub { font-size: 0.7rem; color: #5f5e5a; margin-top: 3px; line-height: 1.35; }
+.progress-bar { height: 5px; background: #D3D1C7; border-radius: 3px; overflow: hidden; margin-bottom: 0.7rem; }
+.progress-fill { height: 100%; background: #534AB7; border-radius: 3px; transition: width 0.4s ease; }
+.debrief-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; }
+.debrief-table th { text-align: left; font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888780; padding: 4px 4px; border-bottom: 1px solid #D3D1C7; }
+.debrief-table td { padding: 5px 4px; border-bottom: 0.5px solid #D3D1C7; }
+.debrief-table tr:last-child td { border-bottom: none; }
+.h2h-players { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.9rem; align-items: start; }
+.h2h-col { background: white; border-radius: 12px; border: 1px solid #d3d1c7; padding: 0.85rem; }
+.h2h-col-title { font-weight: 800; font-size: 0.82rem; text-align: center; padding: 0.3rem; border-radius: 8px; margin-bottom: 0.6rem; }
+.h2h-col-title.p1 { background: #EEEDFE; color: #3C3489; } .h2h-col-title.p2 { background: #E1F5EE; color: #085041; }
+.h2h-vs { font-size: 1rem; font-weight: 800; color: #B4B2A9; align-self: center; text-align: center; }
+.h2h-mini-label { font-size: 0.64rem; font-weight: 700; text-transform: uppercase; color: #888780; margin: 7px 0 4px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="crawl-screen">
+  <svg id="starfield" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="800" height="600" fill="#000"/>
+    <g fill="white">
+      <circle cx="38" cy="14" r="0.9" opacity=".9"/><circle cx="107" cy="52" r="1.0" opacity=".7"/><circle cx="189" cy="8" r="0.6" opacity=".8"/><circle cx="257" cy="74" r="1.1" opacity=".6"/><circle cx="334" cy="21" r="0.7" opacity=".9"/><circle cx="412" cy="59" r="0.9" opacity=".7"/><circle cx="490" cy="13" r="0.6" opacity=".85"/><circle cx="561" cy="86" r="1.2" opacity=".5"/><circle cx="638" cy="29" r="0.8" opacity=".75"/><circle cx="714" cy="67" r="0.6" opacity=".8"/><circle cx="68" cy="141" r="0.9" opacity=".6"/><circle cx="151" cy="163" r="0.7" opacity=".8"/><circle cx="229" cy="118" r="1.1" opacity=".7"/><circle cx="307" cy="152" r="0.6" opacity=".9"/><circle cx="384" cy="107" r="0.8" opacity=".6"/><circle cx="462" cy="176" r="1.0" opacity=".7"/><circle cx="540" cy="129" r="0.7" opacity=".85"/><circle cx="617" cy="155" r="0.9" opacity=".65"/><circle cx="24" cy="231" r="1.0" opacity=".7"/><circle cx="93" cy="265" r="0.6" opacity=".9"/><circle cx="170" cy="210" r="0.8" opacity=".75"/><circle cx="248" cy="287" r="1.1" opacity=".6"/><circle cx="325" cy="242" r="0.7" opacity=".8"/><circle cx="403" cy="269" r="0.9" opacity=".7"/><circle cx="481" cy="217" r="0.6" opacity=".85"/><circle cx="558" cy="256" r="1.0" opacity=".6"/><circle cx="636" cy="231" r="0.8" opacity=".75"/><circle cx="52" cy="354" r="0.7" opacity=".8"/><circle cx="129" cy="387" r="1.0" opacity=".65"/><circle cx="207" cy="332" r="0.8" opacity=".7"/><circle cx="284" cy="365" r="0.6" opacity=".9"/><circle cx="362" cy="310" r="0.9" opacity=".7"/><circle cx="440" cy="376" r="1.1" opacity=".55"/><circle cx="518" cy="343" r="0.7" opacity=".8"/><circle cx="595" cy="354" r="0.8" opacity=".7"/><circle cx="671" cy="332" r="0.6" opacity=".85"/><circle cx="16" cy="443" r="1.1" opacity=".6"/><circle cx="84" cy="465" r="0.8" opacity=".75"/><circle cx="162" cy="421" r="0.6" opacity=".85"/><circle cx="240" cy="487" r="0.9" opacity=".65"/><circle cx="318" cy="432" r="0.7" opacity=".8"/><circle cx="396" cy="454" r="1.0" opacity=".7"/><circle cx="474" cy="410" r="0.8" opacity=".75"/><circle cx="551" cy="476" r="0.6" opacity=".9"/><circle cx="629" cy="443" r="0.9" opacity=".65"/><circle cx="43" cy="532" r="0.7" opacity=".8"/><circle cx="121" cy="554" r="0.9" opacity=".7"/><circle cx="198" cy="510" r="0.6" opacity=".85"/><circle cx="354" cy="521" r="0.8" opacity=".75"/><circle cx="432" cy="543" r="0.7" opacity=".8"/><circle cx="510" cy="499" r="0.9" opacity=".7"/><circle cx="587" cy="565" r="0.6" opacity=".85"/><circle cx="664" cy="532" r="1.0" opacity=".65"/>
+    </g>
+  </svg>
+  <div id="crawl-container">
+    <div class="crawl-ep">Episode XII</div>
+    <div class="crawl-logo">SUPPLY CHAIN<br>CHALLENGE</div>
+    <div class="crawl-logo-sub">Sports Marketing Edition</div>
+    <div class="crawl-body">A long time ago, in a supply chain far, far away...</div>
+    <div class="crawl-body">The IRAN WAR has thrown galactic trade into chaos. The Strait of Hormuz stands CLOSED. Qatari and UAE energy exports have gone dark. Maersk and Hapag-Lloyd have fled the Middle Eastern theater entirely.</div>
+    <div class="crawl-body">Ports around the Indian Ocean overflow with stranded cargo. A shipment of hair clips and playdough drifts helplessly off Karachi, costing its owner $200 a day in fees. More than 100 vessels are trapped in the Gulf. The Empire of Global Trade trembles.</div>
+    <div class="crawl-body">Meanwhile, in the warehouse sector, a rebellion stirs. Big-box vacancies hit multi-year highs. Cold-storage rates collapse. The Rebel Alliance of Third-Party Logistics scrambles — DHL marshals 10 new outposts, and FedEx raises its flag over a battered UPS.</div>
+    <div class="crawl-body">And then — from out of the chaos — a beacon of hope. With 1.3 seconds remaining, <span class="crawl-hi">UConn guard Braylon Mullins</span> launches a 35-foot buzzer-beater over Duke. <span class="crawl-hi">Huskies 71, Blue Devils 70.</span></div>
+    <div class="crawl-body">200,000 fans flood team stores demanding the Mullins #24 jersey. Manufacturers, wholesalers, 3PLs, and retailers across the value network strain under the surge. Someone must move those $50 jerseys through the channel — fast, efficiently, and at a profit.</div>
+    <div class="crawl-body">Choose your distribution intensity, your push or pull strategy, your channel intermediary, your inventory level, and your transportation mode. The value chain awaits.</div>
+    <div class="crawl-end">May the supply chain<br>be with you.</div>
+  </div>
+  <button id="skip-btn" onclick="endCrawl()">Skip &rsaquo;&rsaquo;</button>
+</div>
+
+<div id="register-screen">
+  <div class="reg-card">
+    <svg viewBox="0 0 260 280" width="130" style="margin-bottom:1.25rem" xmlns="http://www.w3.org/2000/svg">
+      <path d="M65,50 L32,76 L24,132 L50,136 L50,246 L210,246 L210,136 L236,132 L228,76 L195,50 L170,33 Q130,16 90,33 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="2"/>
+      <path d="M65,50 L32,76 L45,107 L73,90 L73,58 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="1.5"/>
+      <path d="M195,50 L228,76 L215,107 L187,90 L187,58 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="1.5"/>
+      <path d="M90,33 Q130,45 170,33 Q154,62 130,64 Q106,62 90,33 Z" fill="#0a3d7a" stroke="#FFFFFF" stroke-width="1.5"/>
+      <text x="130" y="184" font-family="Arial Black,sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2">24</text>
+      <text x="130" y="98" font-family="Arial Black,sans-serif" font-size="18" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">UCONN</text>
+      <rect x="58" y="118" width="144" height="22" fill="#FFFFFF" rx="2"/>
+      <text x="130" y="134" font-family="Arial Black,sans-serif" font-size="12" font-weight="900" fill="#0e4c96" text-anchor="middle" letter-spacing="2">MULLINS</text>
+    </svg>
+    <div class="reg-title">Supply Chain Challenge</div>
+    <div class="reg-sub">Mullins #24 just hit the buzzer beater. 200,000 fans want his jersey. You run the supply chain. Enter your name to play.</div>
+    <input type="text" class="reg-input" id="player-name" placeholder="Your name" maxlength="24" onkeydown="if(event.key==='Enter')beginGame()">
+    <button class="btn btn-primary" style="width:100%" onclick="beginGame()">Enter the Supply Chain &rarr;</button>
+  </div>
+</div>
+
+<div id="mode-screen">
+  <div class="mode-title">Supply Chain Challenge</div>
+  <div class="mode-welcome" id="mode-welcome"></div>
+  <div class="mode-sub">$50 jerseys &nbsp;&middot;&nbsp; 6 rounds &nbsp;&middot;&nbsp; maximize profit</div>
+  <div style="margin-bottom:1.25rem">
+    <svg viewBox="0 0 300 120" width="240" xmlns="http://www.w3.org/2000/svg">
+      <path d="M35,18 L12,34 L8,68 L24,70 L24,108 L276,108 L276,70 L292,68 L288,34 L265,18 L242,8 Q150,0 58,8 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="1.5"/>
+      <path d="M35,18 L12,34 L20,54 L42,43 L42,22 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="1.2"/>
+      <path d="M265,18 L288,34 L280,54 L258,43 L258,22 Z" fill="#0e4c96" stroke="#FFFFFF" stroke-width="1.2"/>
+      <text x="150" y="86" font-family="Arial Black,sans-serif" font-size="40" font-weight="900" fill="#FFFFFF" text-anchor="middle">24</text>
+      <text x="150" y="38" font-family="Arial Black,sans-serif" font-size="12" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">UCONN</text>
+      <rect x="66" y="46" width="168" height="19" fill="#FFFFFF" rx="2"/>
+      <text x="150" y="59" font-family="Arial Black,sans-serif" font-size="11" font-weight="900" fill="#0e4c96" text-anchor="middle" letter-spacing="2">MULLINS</text>
+    </svg>
+  </div>
+  <div class="mode-context">
+    <strong style="color:#1a1a18">Chapter 12 concepts in every round:</strong><br>
+    <span class="lo-pill">LO 12.1/12.6</span> Value chain &amp; supply chain management &nbsp;&middot;&nbsp;
+    <span class="lo-pill">LO 12.2/12.3</span> Intermediary types: manufacturer, 3PL, wholesaler &nbsp;&middot;&nbsp;
+    <span class="lo-pill">LO 12.6</span> Transportation modes (Exhibit 12.7), inventory (JIT vs. safety stock), warehousing &nbsp;&middot;&nbsp;
+    <span class="lo-pill">LO 12.5</span> Distribution intensity &amp; push vs. pull strategy
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="startSolo()">
+      <div class="mode-icon">&#127991;</div>
+      <div class="mode-name">Solo &mdash; Turn-Based</div>
+      <div class="mode-desc">6 rounds. Navigate real disruptions. Maximize profit. Score goes on the class leaderboard.</div>
+    </div>
+    <div class="mode-card" onclick="startH2H()">
+      <div class="mode-icon">&#9889;</div>
+      <div class="mode-name">Head-to-Head</div>
+      <div class="mode-desc">Two players, same screen. Most profit after 6 rounds wins.</div>
+    </div>
+  </div>
+  <button class="lb-btn" onclick="showLeaderboard()">&#128202; View Class Leaderboard</button>
+</div>
+
+<div id="lb-overlay" onclick="if(event.target===this)closeLB()">
+  <div class="lb-modal">
+    <div class="lb-title"><span>Class Leaderboard</span><span class="lb-close" onclick="closeLB()">&#10005;</span></div>
+    <div id="lb-content"><div style="text-align:center;color:#888780;padding:2rem">Loading scores...</div></div>
+    <div style="margin-top:1rem;font-size:0.72rem;color:#888780;text-align:center">Updates live as classmates finish</div>
+  </div>
+</div>
+
+<div id="game-screen">
+  <div class="game-header">
+    <div>
+      <div class="game-title">Mullins #24 Jersey &mdash; Supply Chain Challenge</div>
+      <div class="game-sub" id="round-label">Round 1 of 6</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <span class="round-badge" id="round-badge">Round 1/6</span>
+      <button class="btn btn-sm" style="background:#E6F1FB;color:#0C447C;border:none;cursor:pointer" onclick="showLeaderboard()">&#128202; Leaderboard</button>
+      <button class="btn btn-sm btn-secondary" onclick="backToMenu()">Menu</button>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="solo-progress" style="width:0%"></div></div>
+  <div class="scorecard">
+    <div class="score-card"><div class="score-label">Revenue</div><div class="score-value good" id="sc-rev">$0</div></div>
+    <div class="score-card"><div class="score-label">Total Costs</div><div class="score-value bad" id="sc-cost">$0</div></div>
+    <div class="score-card"><div class="score-label">Fill Rate</div><div class="score-value" id="sc-fill">&mdash;</div></div>
+    <div class="score-card" style="border-color:#534AB7"><div class="score-label">Cumulative Profit</div><div class="score-value" id="sc-profit" style="color:#534AB7">$0</div></div>
+  </div>
+  <div id="decision-phase">
+    <div id="event-container"></div>
+    <div class="panel">
+      <div class="panel-title">1 &middot; Distribution Intensity <span class="lo-tag">LO 12.5</span></div>
+      <div class="concept-note"><strong>Distribution intensity</strong> determines how many outlets carry your product. Intensive = maximum exposure (convenience/event goods). Selective = chosen retailers. Exclusive = prestige, limited access. Your choice directly affects how many fans can find the jersey.</div>
+      <div class="three-grid" id="distrib-grid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">2 &middot; Marketing Strategy: Push vs. Pull <span class="lo-tag">LO 12.5</span></div>
+      <div class="concept-note"><strong>Push strategy</strong> directs spend toward channel intermediaries &mdash; slotting allowances, trade deals &mdash; to get product on shelves. <strong>Pull strategy</strong> invests in end-consumer marketing (social media, influencers) to generate demand that pulls product through the channel.</div>
+      <div class="three-grid" id="push-pull-grid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">3 &middot; Channel Intermediary / Supplier <span class="lo-tag">LO 12.2/12.3</span></div>
+      <div class="concept-note"><strong>Intermediaries</strong> link producers to consumers and perform physical distribution, transaction, and facilitating functions. A <strong>3PL</strong> lets your firm focus on core business by outsourcing fulfillment. A <strong>wholesaler</strong> buys in bulk and resells &mdash; low cost, higher disruption risk.</div>
+      <div class="three-grid" id="supplier-grid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">4 &middot; Inventory Management <span class="lo-tag">LO 12.6</span></div>
+      <div class="concept-note"><strong>JIT (just-in-time)</strong> minimizes holding costs but risks stockouts when demand spikes. <strong>Safety stock</strong> buffers against uncertainty but raises warehousing costs. Jerseys sell for $50 each.</div>
+      <div class="slider-row">
+        <label>Units to stock</label>
+        <input type="range" min="50" max="300" step="10" value="150" id="inv-slider" oninput="updateInv()">
+        <span class="slider-val" id="inv-val">150 units</span>
+      </div>
+      <div class="cost-hint" id="inv-cost-hint">Holding cost: $750/round &nbsp;&middot;&nbsp; Max revenue if sold out: $7,500</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">5 &middot; Transportation Mode <span class="lo-tag">LO 12.6</span></div>
+      <div class="concept-note"><strong>Exhibit 12.7</strong> compares modes on cost, speed, reliability, flexibility, and damage risk. Air = fastest, most expensive, best reliability. Motor = most flexible, moderate cost. Water/Economy = lowest cost, slowest, most vulnerable to port congestion.</div>
+      <div class="three-grid" id="shipping-grid"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="confirmDecisions()">Confirm All Decisions &rarr;</button></div>
+  </div>
+  <div id="result-phase" class="hidden">
+    <div id="round-result-banner"></div>
+    <div class="panel"><div class="panel-title">Round Results</div><div class="demand-reveal" id="demand-reveal"></div></div>
+    <div class="btn-row"><button class="btn btn-primary" id="next-btn" onclick="nextRound()">Next Round &rarr;</button></div>
+  </div>
+  <div id="final-phase" class="hidden">
+    <div class="panel">
+      <div class="panel-title">Final Scorecard &mdash; Season Summary</div>
+      <div class="results-grid">
+        <div class="result-big"><div class="result-label">Total Revenue</div><div class="result-num good" id="final-rev"></div><div class="result-sub">$50 &times; jerseys sold</div></div>
+        <div class="result-big"><div class="result-label">Total Costs</div><div class="result-num bad" id="final-cost"></div><div class="result-sub">all supply chain costs</div></div>
+        <div class="result-big" style="border-color:#534AB7"><div class="result-label">Net Profit</div><div class="result-num" id="final-profit"></div><div class="result-sub">revenue minus all costs</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-size:0.78rem;color:#888780;margin-bottom:3px">Overall fill rate</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#5f5e5a" id="final-fill-pct"></div>
+        <div style="font-size:0.82rem;color:#5f5e5a;margin-top:5px" id="final-grade"></div>
+      </div>
+      <div id="lb-submitted-banner" class="hidden" style="background:#EAF3DE;border-radius:9px;padding:0.6rem 0.9rem;font-size:0.8rem;color:#3B6D11;margin-bottom:1rem;text-align:center"></div>
+      <div class="panel-title" style="margin-bottom:0.5rem">Round-by-Round Log</div>
+      <div style="overflow-x:auto">
+        <table class="debrief-table">
+          <thead><tr><th>Rnd</th><th>Distribution</th><th>Strategy</th><th>Intermediary</th><th>Inv</th><th>Transport</th><th>Demand</th><th>Sold</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr></thead>
+          <tbody id="debrief-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:1.1rem;padding:0.85rem;background:#f5f4f0;border-radius:9px;font-size:0.78rem;color:#5f5e5a;line-height:1.75">
+        <strong style="color:#1a1a18;display:block;margin-bottom:5px">Chapter 12 debrief questions:</strong>
+        <strong>LO 12.1/12.6:</strong> How did decisions at each node of the value chain (supplier &rarr; inventory &rarr; transport) compound across rounds?<br>
+        <strong>LO 12.2/12.3:</strong> Which intermediary type performed best under disruption? How does 3PL outsourcing reflect the focus-on-core-business principle?<br>
+        <strong>LO 12.5:</strong> Did intensive or selective distribution yield better profit? What product characteristics drive that choice for licensed sports apparel?<br>
+        <strong>LO 12.5/12.6:</strong> Did push or pull strategy serve you better? How does that connect to the Hormuz disruption affecting inbound logistics?
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="backToMenu()">Back to Menu</button>
+      <button class="btn btn-primary" onclick="startSolo()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<div id="h2h-screen">
+  <div class="game-header">
+    <div class="game-title">Head-to-Head &middot; Mullins #24 Supply Chain</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <span class="round-badge" id="h2h-round-badge">Round 1/6</span>
+      <button class="btn btn-sm btn-secondary" onclick="backToMenu()">Menu</button>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="h2h-progress" style="width:0%"></div></div>
+  <div id="h2h-event-container" style="margin-bottom:0.55rem"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:0.7rem">
+    <div class="score-card" style="border-color:#534AB7"><div class="score-label" style="color:#534AB7">Player 1 Profit</div><div class="score-value" id="h2h-p1-score" style="color:#534AB7">$0</div></div>
+    <div class="score-card" style="border-color:#0F6E56"><div class="score-label" style="color:#0F6E56">Player 2 Profit</div><div class="score-value" id="h2h-p2-score" style="color:#0F6E56">$0</div></div>
+  </div>
+  <div id="h2h-decision-phase">
+    <div class="h2h-players">
+      <div class="h2h-col">
+        <div class="h2h-col-title p1">Player 1</div>
+        <div class="h2h-mini-label">Distribution Intensity</div><div id="h2h-p1-distrib"></div>
+        <div class="h2h-mini-label">Push vs. Pull</div><div id="h2h-p1-pushpull"></div>
+        <div class="h2h-mini-label">Intermediary</div><div id="h2h-p1-sup"></div>
+        <div class="h2h-mini-label">Inventory</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="range" min="50" max="300" step="10" value="150" id="h2h-inv1" oninput="updateH2HInv(1)" style="flex:1">
+          <span style="font-size:0.78rem;font-weight:700;min-width:55px;text-align:right" id="h2h-inv1-val">150 units</span>
+        </div>
+        <div class="h2h-mini-label">Transport Mode</div><div id="h2h-p1-ship"></div>
+      </div>
+      <div class="h2h-vs">VS</div>
+      <div class="h2h-col">
+        <div class="h2h-col-title p2">Player 2</div>
+        <div class="h2h-mini-label">Distribution Intensity</div><div id="h2h-p2-distrib"></div>
+        <div class="h2h-mini-label">Push vs. Pull</div><div id="h2h-p2-pushpull"></div>
+        <div class="h2h-mini-label">Intermediary</div><div id="h2h-p2-sup"></div>
+        <div class="h2h-mini-label">Inventory</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="range" min="50" max="300" step="10" value="150" id="h2h-inv2" oninput="updateH2HInv(2)" style="flex:1">
+          <span style="font-size:0.78rem;font-weight:700;min-width:55px;text-align:right" id="h2h-inv2-val">150 units</span>
+        </div>
+        <div class="h2h-mini-label">Transport Mode</div><div id="h2h-p2-ship"></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="confirmH2H()">Reveal Round Results &rarr;</button></div>
+  </div>
+  <div id="h2h-result-phase" class="hidden">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:0.7rem">
+      <div class="panel" id="h2h-p1-result"></div>
+      <div class="panel" id="h2h-p2-result"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" id="h2h-next-btn" onclick="nextH2HRound()">Next Round &rarr;</button></div>
+  </div>
+  <div id="h2h-final-phase" class="hidden">
+    <div class="panel">
+      <div class="panel-title">Final Results</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.1rem">
+        <div class="result-big" id="h2h-final-p1"></div>
+        <div class="result-big" id="h2h-final-p2"></div>
+      </div>
+      <div style="text-align:center;padding:0.9rem;background:#EEEDFE;border-radius:12px;font-size:1rem;font-weight:800;color:#3C3489" id="h2h-winner"></div>
+      <div style="margin-top:0.9rem;padding:0.75rem;background:#f5f4f0;border-radius:9px;font-size:0.76rem;color:#5f5e5a;line-height:1.65">
+        <strong style="color:#1a1a18">Debrief:</strong> Compare strategies. Did the winner choose more intensive distribution, a stronger pull spend, a safer intermediary, or a faster transport mode? Which Chapter 12 decision created the biggest profit gap?
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="backToMenu()">Menu</button>
+      <button class="btn btn-primary" onclick="startH2H()">Rematch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SELL_PRICE = 50;
+let playerName = '';
+
+const DISTRIB = [
+  { id:'intensive', name:'Intensive Distribution', demandMult:1.45, cost:800, desc:'Max outlets — mass retailers, convenience stores, all online channels. Highest fan reach.' },
+  { id:'selective', name:'Selective Distribution', demandMult:1.0,  cost:400, desc:'Chosen sporting goods stores and team stores. Balanced reach and margin protection.' },
+  { id:'exclusive', name:'Exclusive Distribution', demandMult:0.65, cost:150, desc:'Team store and one premium partner only. Prestige positioning, lower volume.' },
+];
+const PUSHPULL = [
+  { id:'push',     name:'Push Strategy',     demandMult:1.0,  cost:600, desc:'Trade promotions and slotting allowances push product through intermediaries to shelves.' },
+  { id:'pull',     name:'Pull Strategy',     demandMult:1.3,  cost:900, desc:'Social media, influencer posts, and fan campaigns pull consumer demand through the channel.' },
+  { id:'balanced', name:'Balanced Approach', demandMult:1.15, cost:700, desc:'Moderate investment in both intermediary incentives and direct consumer marketing.' },
+];
+const SUPPLIERS = [
+  { id:'A', name:'DomesticPro Apparel',   type:'Direct Manufacturer', cost:18, reliability:0.96, risk:'low',  riskLabel:'Low Risk',  leadDays:1, note:'U.S.-based manufacturer. High reliability. No Hormuz exposure.' },
+  { id:'B', name:'QuickShip 3PL',         type:'3PL Provider',        cost:12, reliability:0.84, risk:'med',  riskLabel:'Med Risk',  leadDays:3, note:'Third-party logistics. Outsourced fulfillment — firm stays focused on core business.' },
+  { id:'C', name:'AsiaPacific Wholesale', type:'Wholesaler',           cost:7,  reliability:0.60, risk:'high', riskLabel:'High Risk', leadDays:7, note:'Buys in bulk, resells. Lowest cost. Hormuz closure is catastrophic.' },
+];
+const CARRIERS = [
+  { id:'air',   name:'Air Freight',    mode:'Air',   cost:18, days:1, note:'Exhibit 12.7: Fastest, priciest. Best reliability ranking. FedEx Priority.' },
+  { id:'ground',name:'Motor / Ground', mode:'Motor', cost:7,  days:3, note:'Exhibit 12.7: Most flexible delivery. Moderate cost and speed. UPS Ground.' },
+  { id:'econ',  name:'Water / Economy',mode:'Water', cost:2,  days:7, note:'Exhibit 12.7: Cheapest, slowest, worst reliability. Port congestion exposure.' },
+];
+const EVENTS = [
+  null,
+  { cls:'ev-bad',  msg:'Strait of Hormuz Closure — Gulf shipping halted. AsiaPacific Wholesale is unavailable this round. This disrupts inbound logistics across the value chain (LO 12.6).', source:'WSJ: "It\'s Not Just Oil: The Iran War Upends Global Supply Chains" — Mar 13, 2026', effect:'disable_C' },
+  null,
+  { cls:'ev-warn', msg:'Championship Demand Surge — Mullins goes viral. Pull strategy amplified. Demand is 60% above forecast this round.', source:'Post-buzzer-beater social media demand spike hits fulfillment centers.', effect:'demand_surge' },
+  { cls:'ev-warn', msg:'Port Congestion — Indian Ocean ports jammed. Water/Economy freight adds 4 extra days (Exhibit 12.7 reliability ranking drops further).', source:'WSJ: "Ports around the Indian Ocean are filling up with redirected cargoes."', effect:'economy_delay' },
+  { cls:'ev-info', msg:'Warehouse Glut — Big-box vacancy at 20-year high. Holding costs drop 20% this round. Reverse logistics costs also down (LO 12.6).', source:'WSJ: "Big Warehouses Are Back in Demand" & "Cold-Storage Vacancies Hit 20-Year High" — Mar 2026', effect:'cheap_warehouse' },
+];
+
+let state = {};
+function initSolo() {
+  state = { mode:'solo', round:0, totalRev:0, totalCost:0, totalFilled:0, totalDemand:0, log:[],
+    selD:null, selPP:null, selSup:null, selInv:150, selCar:null };
+}
+function initH2H() {
+  state = { mode:'h2h', round:0,
+    p1:{ totalRev:0,totalCost:0,totalFilled:0,totalDemand:0,profit:0,selD:null,selPP:null,selSup:null,selInv:150,selCar:null },
+    p2:{ totalRev:0,totalCost:0,totalFilled:0,totalDemand:0,profit:0,selD:null,selPP:null,selSup:null,selInv:150,selCar:null }
+  };
+}
+
+function showScreen(id) {
+  ['crawl-screen','register-screen','mode-screen','game-screen','h2h-screen'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = s===id ? (['register-screen','mode-screen'].includes(s)?'flex':'block') : 'none';
+  });
+}
+function endCrawl()  { showScreen('register-screen'); }
+function beginGame() {
+  const n = document.getElementById('player-name').value.trim();
+  if (!n) { document.getElementById('player-name').focus(); return; }
+  playerName = n;
+  document.getElementById('mode-welcome').textContent = 'Welcome, ' + playerName + '! Choose your mode below.';
+  showScreen('mode-screen');
+}
+function backToMenu() { showScreen('mode-screen'); }
+function startSolo()  { initSolo();  showScreen('game-screen'); renderSoloRound(); }
+function startH2H()   { initH2H();   showScreen('h2h-screen');  renderH2HRound(); }
+setTimeout(endCrawl, 89000);
+
+async function showLeaderboard() {
+  document.getElementById('lb-overlay').style.display = 'flex';
+  await renderLB();
+}
+function closeLB() { document.getElementById('lb-overlay').style.display = 'none'; }
+async function renderLB() {
+  const cont = document.getElementById('lb-content');
+  cont.innerHTML = '<div style="text-align:center;color:#888780;padding:1.5rem">Loading...</div>';
+  try {
+    const keys = await window.storage.list('score:', true);
+    if (!keys || !keys.keys || !keys.keys.length) {
+      cont.innerHTML = '<div style="text-align:center;color:#888780;padding:1.5rem">No scores yet — finish your game to appear here!</div>';
+      return;
+    }
+    const entries = [];
+    for (const k of keys.keys) {
+      try { const r = await window.storage.get(k, true); if (r) entries.push(JSON.parse(r.value)); } catch(e) {}
+    }
+    entries.sort((a,b) => b.profit - a.profit);
+    let html = '<table class="lb-table"><thead><tr><th>#</th><th>Name</th><th>Profit</th><th>Fill Rate</th></tr></thead><tbody>';
+    entries.forEach((e,i) => {
+      const isYou = e.name === playerName;
+      const medal = i===0?'1st':i===1?'2nd':i===2?'3rd':'';
+      html += `<tr class="${isYou?'lb-you':''}"><td class="lb-rank">${medal||'#'+(i+1)}</td><td>${e.name}${isYou?' <em style="font-size:0.7rem;color:#888780">(you)</em>':''}</td><td style="font-weight:700;color:${e.profit>=0?'#0F6E56':'#A32D2D'}">${e.profit>=0?'$':'-$'}${Math.abs(e.profit).toLocaleString()}</td><td>${e.fillRate}%</td></tr>`;
+    });
+    html += '</tbody></table>';
+    cont.innerHTML = html;
+  } catch(e) {
+    cont.innerHTML = '<div style="text-align:center;color:#888780;padding:1.5rem">Leaderboard active when hosted on Claude.ai or a server with storage support.</div>';
+  }
+}
+async function submitScore(profit, af) {
+  try {
+    const key = 'score:' + playerName.replace(/[^\w-]/g,'_') + '_' + Date.now();
+    await window.storage.set(key, JSON.stringify({ name:playerName, profit, fillRate:Math.round(af*100), ts:Date.now() }), true);
+    const b = document.getElementById('lb-submitted-banner');
+    b.textContent = 'Your score has been posted to the class leaderboard!';
+    b.classList.remove('hidden');
+  } catch(e) {}
+}
+
+function mkChoiceCards(contId, options, stateKey, ev) {
+  const cont = document.getElementById(contId);
+  cont.innerHTML = '';
+  options.forEach(o => {
+    const dis = ev && ev.effect==='disable_C' && o.id==='C';
+    const sel = state[stateKey] === o.id;
+    const el  = document.createElement('div');
+    el.className = 'choice-card'+(dis?' disrupted':'')+(sel?' selected':'');
+    const typeStr = o.type ? `<div class="card-type">${o.type}</div>` : '';
+    const extra = o.cost!==undefined && o.leadDays!==undefined
+      ? `$${o.cost}/unit · ${Math.round(o.reliability*100)}% reliable · ${o.leadDays}d lead`
+      : o.cost!==undefined && o.days!==undefined
+      ? `$${o.cost}/order · ${o.days}d delivery`
+      : '';
+    el.innerHTML = (o.risk?`<span class="risk-badge risk-${o.risk}">${o.riskLabel}</span>`:'')
+      + `<div class="card-name">${o.name}</div>${typeStr}`
+      + `<div class="card-stats">${extra?extra+'<br>':''}<em style="font-size:0.68rem;color:#888780">${o.note||o.desc}</em></div>`;
+    if (!dis) el.onclick = () => { state[stateKey]=o.id; mkChoiceCards(contId,options,stateKey,ev); };
+    cont.appendChild(el);
+  });
+}
+
+function renderSoloRound() {
+  const r = state.round;
+  document.getElementById('solo-progress').style.width = (r/6*100)+'%';
+  document.getElementById('round-badge').textContent = 'Round '+(r+1)+'/6';
+  document.getElementById('round-label').textContent  = 'Round '+(r+1)+' of 6';
+  document.getElementById('decision-phase').classList.remove('hidden');
+  document.getElementById('result-phase').classList.add('hidden');
+  document.getElementById('final-phase').classList.add('hidden');
+  const ev = EVENTS[r];
+  document.getElementById('event-container').innerHTML = ev
+    ? `<div class="event-banner ${ev.cls}">${ev.msg}<div class="ev-source">Source: ${ev.source}</div></div>` : '';
+  mkChoiceCards('distrib-grid', DISTRIB,    'selD',   ev);
+  mkChoiceCards('push-pull-grid', PUSHPULL, 'selPP',  ev);
+  mkChoiceCards('supplier-grid', SUPPLIERS, 'selSup', ev);
+  mkChoiceCards('shipping-grid', CARRIERS,  'selCar', ev);
+  document.getElementById('inv-slider').value = state.selInv;
+  updateInv();
+}
+
+function updateInv() {
+  const v = parseInt(document.getElementById('inv-slider').value);
+  state.selInv = v;
+  document.getElementById('inv-val').textContent = v+' units';
+  const hc = Math.round(v*5);
+  const strat = v<100?'JIT-lean (stockout risk high)':v<180?'moderate safety stock':'high safety stock';
+  document.getElementById('inv-cost-hint').textContent =
+    'Holding cost: $'+hc.toLocaleString()+'/round  ·  Strategy: '+strat+'  ·  Max revenue: $'+(v*SELL_PRICE).toLocaleString();
+}
+
+function confirmDecisions() {
+  if (!state.selD||!state.selPP||!state.selSup||!state.selCar) {
+    alert('Please make all 5 decisions before confirming.'); return;
+  }
+  runSoloRound();
+}
+
+function calcRound(ps, ev, sharedDemandSeed) {
+  const dist = DISTRIB.find(d=>d.id===ps.selD);
+  const pp   = PUSHPULL.find(p=>p.id===ps.selPP);
+  const sup  = SUPPLIERS.find(s=>s.id===ps.selSup);
+  const car  = CARRIERS.find(c=>c.id===ps.selCar);
+  let demand = Math.round((80+sharedDemandSeed*100)*dist.demandMult*pp.demandMult);
+  if (ev && ev.effect==='demand_surge') demand = Math.round(demand*1.6);
+  if (ev && ev.effect==='demand_surge' && pp.id==='pull') demand = Math.round(demand*1.15);
+  const supOk = Math.random()<sup.reliability;
+  const avail = supOk ? ps.selInv : Math.round(ps.selInv*0.35);
+  const sold  = Math.min(avail, demand);
+  let days = car.days+sup.leadDays;
+  if (ev && ev.effect==='economy_delay' && car.id==='econ') days+=4;
+  const hm = (ev && ev.effect==='cheap_warehouse') ? 0.8 : 1.0;
+  const holdCost  = Math.round(ps.selInv*5*hm);
+  const procCost  = sold*sup.cost;
+  const shipCost  = Math.ceil(sold/20)*car.cost;
+  const stockoutP = Math.max(0,demand-avail)*8;
+  const totalCost = holdCost+dist.cost+pp.cost+procCost+shipCost+stockoutP;
+  const revenue   = sold*SELL_PRICE;
+  const profit    = revenue-totalCost;
+  return { dist,pp,sup,car,demand,sold,avail,supOk,days,holdCost,procCost,shipCost,stockoutP,totalCost,revenue,profit,fillRate:sold/demand,hm };
+}
+
+function runSoloRound() {
+  const r  = state.round;
+  const ev = EVENTS[r];
+  const R  = calcRound(state, ev, Math.random());
+  state.totalRev    += R.revenue;
+  state.totalCost   += R.totalCost;
+  state.totalFilled += R.sold;
+  state.totalDemand += R.demand;
+  state.log.push({ round:r+1, dist:R.dist.name, pp:R.pp.name, sup:R.sup.name, inv:state.selInv, car:R.car.name,
+    demand:R.demand, sold:R.sold, revenue:R.revenue, totalCost:R.totalCost, profit:R.profit, supOk:R.supOk });
+  updateSoloBoard();
+  document.getElementById('decision-phase').classList.add('hidden');
+  document.getElementById('result-phase').classList.remove('hidden');
+  document.getElementById('round-result-banner').innerHTML = !R.supOk
+    ? `<div class="event-banner ev-bad">Intermediary failure — ${R.sup.name} (${R.sup.type}) delivered only 35% of your order. Illustrates intermediary reliability risk (LO 12.3).</div>` : '';
+  const pc = R.profit>=0?'#0F6E56':'#A32D2D';
+  document.getElementById('demand-reveal').innerHTML = `
+    <div class="demand-row sec"><span>Market demand</span><span></span></div>
+    <div class="demand-row"><span>Demand (base × distribution × strategy)</span><span><strong>${R.demand} jerseys</strong></span></div>
+    <div class="demand-row"><span>Inventory available</span><span>${R.avail} units${R.supOk?'':' <em style="color:#A32D2D">(intermediary failure)</em>'}</span></div>
+    <div class="demand-row"><span>Jerseys sold  ·  fill rate</span><span>${R.sold}/${R.demand}  (${Math.round(R.fillRate*100)}%)</span></div>
+    <div class="demand-row"><span>Delivery time</span><span>${R.days} days</span></div>
+    <div class="demand-row sec"><span>Revenue</span><span></span></div>
+    <div class="demand-row"><span>${R.sold} jerseys × $${SELL_PRICE}</span><span style="color:#0F6E56"><strong>$${R.revenue.toLocaleString()}</strong></span></div>
+    <div class="demand-row sec"><span>Supply chain costs</span><span></span></div>
+    <div class="demand-row"><span>Distribution channel setup (${R.dist.name})</span><span>$${R.dist.cost.toLocaleString()}</span></div>
+    <div class="demand-row"><span>Marketing strategy (${R.pp.name})</span><span>$${R.pp.cost.toLocaleString()}</span></div>
+    <div class="demand-row"><span>Warehouse holding cost${R.hm<1?' (-20% glut discount)':''}</span><span>$${R.holdCost.toLocaleString()}</span></div>
+    <div class="demand-row"><span>Procurement — $${R.sup.cost} × ${R.sold} units</span><span>$${R.procCost.toLocaleString()}</span></div>
+    <div class="demand-row"><span>Transportation (${R.car.mode} mode, Exhibit 12.7)</span><span>$${R.shipCost.toLocaleString()}</span></div>
+    ${R.stockoutP>0?`<div class="demand-row"><span>Stockout penalty — ${R.demand-R.avail} unfilled × $8</span><span style="color:#A32D2D">$${R.stockoutP.toLocaleString()}</span></div>`:''}
+    <div class="demand-row"><span>Total costs</span><span style="color:#A32D2D"><strong>$${R.totalCost.toLocaleString()}</strong></span></div>
+    <div class="demand-row profit-row"><span>Round profit</span><span style="color:${pc}">${R.profit>=0?'+':'-'}$${Math.abs(R.profit).toLocaleString()}</span></div>
+    <div class="lo-debrief"><strong>Ch. 12 this round:</strong>
+    ${R.dist.id==='intensive'?'Intensive distribution maximized reach — ideal for event-driven merchandise (LO 12.5).':R.dist.id==='selective'?'Selective distribution balanced margin and reach (LO 12.5).':'Exclusive distribution prioritized prestige over volume (LO 12.5).'}
+    ${R.pp.id==='pull'?' Pull strategy amplified viral demand — consumer marketing pulled product through the channel (LO 12.5).':R.pp.id==='push'?' Push strategy moved product via intermediary incentives (LO 12.5).':" Balanced push-pull spread investment across both channel levels (LO 12.5)."}
+    ${!R.supOk?' '+R.sup.type+' failure illustrates intermediary transaction risk (LO 12.3).':''}
+    ${R.stockoutP>0?' Stockout penalty reflects the cost of JIT lean inventory under demand volatility (LO 12.6).':''}</div>`;
+  document.getElementById('next-btn').textContent = r<5?'Next Round →':'See Final Results →';
+}
+
+function updateSoloBoard() {
+  const profit = state.totalRev-state.totalCost;
+  const af = state.totalDemand>0?state.totalFilled/state.totalDemand:0;
+  document.getElementById('sc-rev').textContent  = '$'+state.totalRev.toLocaleString();
+  document.getElementById('sc-cost').textContent = '$'+state.totalCost.toLocaleString();
+  const fc = document.getElementById('sc-fill');
+  fc.textContent = Math.round(af*100)+'%';
+  fc.className   = 'score-value '+(af>=0.85?'good':af>=0.6?'warn':'bad');
+  const pc = document.getElementById('sc-profit');
+  pc.textContent = (profit>=0?'$':'-$')+Math.abs(profit).toLocaleString();
+  pc.style.color = profit>=0?'#534AB7':'#A32D2D';
+}
+
+function nextRound() {
+  state.round++;
+  state.selD=null; state.selPP=null; state.selSup=null; state.selCar=null; state.selInv=150;
+  if (state.round>=6) showFinal();
+  else { document.getElementById('inv-slider').value=150; renderSoloRound(); }
+}
+
+async function showFinal() {
+  document.getElementById('decision-phase').classList.add('hidden');
+  document.getElementById('result-phase').classList.add('hidden');
+  document.getElementById('final-phase').classList.remove('hidden');
+  document.getElementById('solo-progress').style.width='100%';
+  const profit = state.totalRev-state.totalCost;
+  const af = state.totalFilled/state.totalDemand;
+  document.getElementById('final-rev').textContent = '$'+state.totalRev.toLocaleString();
+  document.getElementById('final-cost').textContent = '$'+state.totalCost.toLocaleString();
+  const pp = document.getElementById('final-profit');
+  pp.textContent = (profit>=0?'$':'-$')+Math.abs(profit).toLocaleString();
+  pp.style.color = profit>=0?'#534AB7':'#A32D2D';
+  document.getElementById('final-fill-pct').textContent = Math.round(af*100)+'% fill rate';
+  const grade = profit>30000?'Trophy — Exceptional. You maximized value at every node of the supply chain.':
+    profit>15000?'Good season. Review which LO 12.5/12.6 decisions cost you the most.':
+    profit>0?'Slim margins. Supply chain costs nearly erased your revenue.':
+    'Net loss. Revisit your intermediary choices and transportation tradeoffs.';
+  document.getElementById('final-grade').textContent = grade;
+  document.getElementById('debrief-body').innerHTML = state.log.map(l => {
+    const pc = l.profit>=0?'#0F6E56':'#A32D2D';
+    return `<tr><td>${l.round}</td><td style="font-size:0.69rem">${l.dist.replace(' Distribution','')}</td><td style="font-size:0.69rem">${l.pp.replace(' Strategy','').replace(' Approach','')}</td><td style="font-size:0.69rem">${l.sup.split(' ')[0]}</td><td>${l.inv}</td><td style="font-size:0.69rem">${l.car.split('/')[0].trim()}</td><td>${l.demand}</td><td>${l.sold}</td><td style="color:#0F6E56">$${l.revenue.toLocaleString()}</td><td style="color:#A32D2D">$${l.totalCost.toLocaleString()}</td><td style="color:${pc};font-weight:700">${l.profit>=0?'$':'-$'}${Math.abs(l.profit).toLocaleString()}</td></tr>`;
+  }).join('');
+  await submitScore(profit, af);
+}
+
+function renderH2HRound() {
+  const r  = state.round;
+  document.getElementById('h2h-round-badge').textContent = 'Round '+(r+1)+'/6';
+  document.getElementById('h2h-progress').style.width = (r/6*100)+'%';
+  document.getElementById('h2h-decision-phase').classList.remove('hidden');
+  document.getElementById('h2h-result-phase').classList.add('hidden');
+  document.getElementById('h2h-final-phase').classList.add('hidden');
+  const ev = EVENTS[r];
+  document.getElementById('h2h-event-container').innerHTML = ev
+    ? `<div class="event-banner ${ev.cls}">${ev.msg}<div class="ev-source">Source: ${ev.source}</div></div>` : '';
+  [state.p1,state.p2].forEach(ps => { ps.selD=null; ps.selPP=null; ps.selSup=null; ps.selCar=null; ps.selInv=150; });
+  document.getElementById('h2h-inv1').value=150; document.getElementById('h2h-inv2').value=150;
+  document.getElementById('h2h-inv1-val').textContent='150 units'; document.getElementById('h2h-inv2-val').textContent='150 units';
+  renderH2HChoices(ev);
+}
+
+function renderH2HChoices(ev) {
+  [1,2].forEach(p => {
+    const ps    = p===1?state.p1:state.p2;
+    const color = p===1?'#534AB7':'#0F6E56';
+    const bg    = p===1?'#EEEDFE':'#E1F5EE';
+    const mkG = (contId, options, key) => {
+      const cont = document.getElementById(contId);
+      cont.innerHTML = '';
+      options.forEach(o => {
+        const dis = ev && ev.effect==='disable_C' && o.id==='C';
+        const sel = ps[key]===o.id;
+        const el  = document.createElement('div');
+        el.style.cssText = `border:1.5px solid ${sel?color:'#d3d1c7'};border-radius:7px;padding:5px 7px;cursor:pointer;background:${sel?bg:'white'};opacity:${dis?0.4:1};font-size:0.71rem;margin-bottom:4px;`;
+        const typeStr = o.type?`<span style="font-size:0.6rem;color:${color};font-weight:700;text-transform:uppercase;display:block">${o.type}</span>`:'';
+        el.innerHTML = `<strong>${o.name}</strong><br>${typeStr}`;
+        if (!dis) el.onclick = () => { ps[key]=o.id; renderH2HChoices(EVENTS[state.round]); };
+        cont.appendChild(el);
+      });
+    };
+    mkG('h2h-p'+p+'-distrib',  DISTRIB,    'selD');
+    mkG('h2h-p'+p+'-pushpull', PUSHPULL,   'selPP');
+    mkG('h2h-p'+p+'-sup',      SUPPLIERS,  'selSup');
+    mkG('h2h-p'+p+'-ship',     CARRIERS,   'selCar');
+  });
+}
+
+function updateH2HInv(p) {
+  const v = parseInt(document.getElementById('h2h-inv'+p).value);
+  if(p===1) state.p1.selInv=v; else state.p2.selInv=v;
+  document.getElementById('h2h-inv'+p+'-val').textContent=v+' units';
+}
+
+function confirmH2H() {
+  const ok = ps => ps.selD&&ps.selPP&&ps.selSup&&ps.selCar;
+  if (!ok(state.p1)) { alert('Player 1: please make all 5 decisions.'); return; }
+  if (!ok(state.p2)) { alert('Player 2: please make all 5 decisions.'); return; }
+  runH2HRound();
+}
+
+function runH2HRound() {
+  const r  = state.round;
+  const ev = EVENTS[r];
+  const seed = Math.random();
+  [state.p1,state.p2].forEach((ps,idx) => {
+    const R = calcRound(ps, ev, seed);
+    ps.totalRev+=R.revenue; ps.totalCost+=R.totalCost; ps.totalFilled+=R.sold; ps.totalDemand+=R.demand; ps.profit+=R.profit;
+    ps._last = { demand:R.demand, sold:R.sold, revenue:R.revenue, totalCost:R.totalCost, profit:R.profit, supOk:R.supOk, fillRate:R.fillRate };
+  });
+  document.getElementById('h2h-p1-score').textContent=(state.p1.profit>=0?'$':'-$')+Math.abs(state.p1.profit).toLocaleString();
+  document.getElementById('h2h-p2-score').textContent=(state.p2.profit>=0?'$':'-$')+Math.abs(state.p2.profit).toLocaleString();
+  document.getElementById('h2h-decision-phase').classList.add('hidden');
+  document.getElementById('h2h-result-phase').classList.remove('hidden');
+  [1,2].forEach(p => {
+    const ps=p===1?state.p1:state.p2; const lr=ps._last;
+    const color=p===1?'#534AB7':'#0F6E56'; const pc=lr.profit>=0?'#0F6E56':'#A32D2D';
+    document.getElementById('h2h-p'+p+'-result').innerHTML=`
+      <div class="panel-title" style="color:${color}">Player ${p}</div>
+      <div class="demand-reveal">
+        <div class="demand-row"><span>Demand</span><span>${lr.demand} jerseys</span></div>
+        <div class="demand-row"><span>Sold  ·  fill rate</span><span>${lr.sold} (${Math.round(lr.fillRate*100)}%)</span></div>
+        <div class="demand-row"><span>Revenue</span><span style="color:#0F6E56">$${lr.revenue.toLocaleString()}</span></div>
+        <div class="demand-row"><span>Total costs</span><span style="color:#A32D2D">$${lr.totalCost.toLocaleString()}</span></div>
+        ${!lr.supOk?`<div class="demand-row" style="color:#A32D2D"><span>Intermediary failure</span><span>35% only</span></div>`:''}
+        <div class="demand-row profit-row"><span>Round profit</span><span style="color:${pc};font-weight:800">${lr.profit>=0?'$':'-$'}${Math.abs(lr.profit).toLocaleString()}</span></div>
+      </div>`;
+  });
+  document.getElementById('h2h-next-btn').textContent=state.round<5?'Next Round →':'See Final Results →';
+}
+
+function nextH2HRound() {
+  state.round++;
+  if (state.round>=6) showH2HFinal(); else renderH2HRound();
+}
+
+function showH2HFinal() {
+  document.getElementById('h2h-result-phase').classList.add('hidden');
+  document.getElementById('h2h-final-phase').classList.remove('hidden');
+  document.getElementById('h2h-progress').style.width='100%';
+  [1,2].forEach(p => {
+    const ps=p===1?state.p1:state.p2;
+    const af=Math.round(ps.totalFilled/ps.totalDemand*100);
+    const color=p===1?'#534AB7':'#0F6E56'; const pc=ps.profit>=0?color:'#A32D2D';
+    document.getElementById('h2h-final-p'+p).innerHTML=`<div class="result-label" style="color:${color}">Player ${p}</div><div class="result-num" style="color:${pc}">${ps.profit>=0?'$':'-$'}${Math.abs(ps.profit).toLocaleString()}</div><div class="result-sub">Net profit</div><div class="result-sub" style="margin-top:4px">Revenue: $${ps.totalRev.toLocaleString()}</div><div class="result-sub">Costs: $${ps.totalCost.toLocaleString()}</div><div class="result-sub">Fill rate: ${af}%</div>`;
+  });
+  const w=state.p1.profit>state.p2.profit?'Player 1':state.p2.profit>state.p1.profit?'Player 2':null;
+  document.getElementById('h2h-winner').textContent=w?'WIN: '+w+' wins!':"It's a tie!";
+}
+</script>
+</body>
+</html>
